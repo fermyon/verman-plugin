@@ -1,0 +1,6 @@
+name = "verman"
+version = "0.1.0"
+# This version number is low because we need the ability to switch between different versions of Spin
+spin_compatibility = ">=1.0"
+license = "Apache-2.0"
+package = "verman"

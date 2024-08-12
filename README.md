@@ -4,11 +4,9 @@ This is a plugin that makes it easy to switch between different versions of Spin
 
 # Installation
 
-The trigger is installed as a Spin plugin. It can be installed from a release or build.
-
 ## Install the latest version of the plugin
 
-The latest stable release of the command trigger plugin can be installed like so:
+The latest stable release of the OTel plugin can be installed like so:
 
 ```sh
 spin plugins update
@@ -29,44 +27,76 @@ Alternatively, use the `spin pluginify` plugin to install from a fresh build. Th
 
 ```sh
 spin plugins install pluginify
-cargo build --release
-spin pluginify install
+go build -o verman main.go
+spin pluginify --install
 ```
 
 # Usage
 
-Once the plugin is installed, you can try the below commands:
+Once the plugin is installed, you'll need to prepend the verman `current_version` directory to your path, allowing the verman plugin to temporarily override your current version of Spin: `~/.spin_verman/versions/current_version`.
+
+After that is done, you can try the below commands:
+
+## Download a specific version of Spin
+
+Specify the desired version:
+
+```sh
+# You can download multiple versions at once
+spin verman get canary v2.5.0 2.7.0
+```
+
+Get the latest stable version:
+
+```sh
+spin verman get latest
+```
 
 ## Set a different version of Spin
+
+Set a specific version:
 
 ```sh
 # Adding the v prefix to the version is optional
 spin verman set v2.5.0
 ```
 
+Set the latest version:
+
+```sh
+spin verman set latest
+```
+
+## Update a version of Spin in the `~/.spin_verman` directory
+
+```sh
+# "canary" is currently the only subcommand supported by "update"
+spin verman update canary
+```
+
 ## List the versions of Spin that are downloaded via the verman plugin
 
 ```sh
-spin verman ls
+spin verman list
 ```
 
-## Remove version(s) of Spin downloaded via the verman plugin
+## Remove a version of Spin downloaded via the verman plugin
 
 Remove a single version:
 
 ```sh
 # Adding the v prefix to the version is optional
-spin verman rm v2.5.0
+spin verman remove v2.5.0
 ```
 
 Remove all versions:
 
 ```sh
-spin verman rm all
+spin verman remove all
 ```
 
 Remove the alternate Spin version, reverting back to the root version of Spin, but preserving all other versions of Spin downloaded locally:
 
 ```sh
-spin verman rm current
+spin verman remove current
 ```
