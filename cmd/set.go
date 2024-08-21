@@ -91,12 +91,29 @@ func updateSpinBinary(directory, version string) error {
 	}
 
 	testSpinVersionCmd := exec.Command("spin", "--version")
-	outputBytes, err := testSpinVersionCmd.CombinedOutput()
+	currentSpinVersionBytes, err := testSpinVersionCmd.CombinedOutput()
 	if err != nil {
-		return err
+		return fmt.Errorf("error getting the current version of Spin: %v\n%s", err, string(currentSpinVersionBytes))
 	}
 
-	if version != "canary" && !strings.Contains(string(outputBytes), version[1:]) {
+	if version == "canary" {
+		// Checking the version of the canary
+		canaryFile := path.Join(directory, "canary", "spin")
+		cmd := exec.Command(canaryFile, "--version")
+		canaryVersionBytes, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("error getting the current canary version: %v\n%s", err, string(canaryVersionBytes))
+		}
+
+		// Retrieves the version number from the "spin --version" command
+		version = strings.Split(string(canaryVersionBytes), " ")[1]
+
+	} else {
+		// Remove the "v" prefix from the version
+		version = version[1:]
+	}
+
+	if !strings.Contains(string(currentSpinVersionBytes), version) {
 		return fmt.Errorf("it looks like the version of the current Spin executable does not match what was requested, so please check to make sure the path %q is prepended to your path", symLinkDir)
 	}
 
