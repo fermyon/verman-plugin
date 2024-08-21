@@ -11,7 +11,7 @@ on:
 env:
   PROGRAM_NAME: verman
   SPIN_VERSION: v2.7.0
-jobs: 
+jobs:
   build:
     name: Build plugin binaries
     runs-on: ubuntu-latest
@@ -53,10 +53,12 @@ jobs:
         path: |
           *.tar.gz
           *.json
-          
+
   package:
     name: Package Plugin
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: build
     if: github.event_name == 'push'
     steps:
