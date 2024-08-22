@@ -33,9 +33,14 @@ spin pluginify --install
 
 # Usage
 
-Once the plugin is installed, you'll need to prepend the verman `current_version` directory to your path, allowing the verman plugin to temporarily override your current version of Spin: `~/.spin_verman/versions/current_version`.
+Once the plugin is installed, you'll need to prepend the verman `current_version` directory to your path, allowing the verman plugin to temporarily override your current version of Spin:
 
-After that is done, you can try the below commands:
+```sh
+# To permanently prepend the "current_version" directory to your path, add this command to your .zshrc/.bashrc file.
+export PATH="$HOME/.spin_verman/versions/current_version:$PATH"
+```
+
+Once the path is prepended, you can try the below commands:
 
 ## Download a specific version of Spin
 
