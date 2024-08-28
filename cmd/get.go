@@ -83,7 +83,8 @@ func exists(path string) (bool, error) {
 	return false, err
 }
 
-// getVersionDir returns the directory in which the "spin verman" version files will be stored
+// getVersionDir returns the directory in which the "spin verman" version files will be stored.
+// If the directory doesn't exist, this method will create the directory.
 func getVersionDir() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {

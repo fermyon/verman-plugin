@@ -72,6 +72,18 @@ Set the latest version:
 spin verman set latest
 ```
 
+Create/update a pointer to a custom version:
+
+```sh
+spin verman set custom --file path/to/spin/binary
+```
+
+If you have already created a pointer to a custom version, you can use this to switch the Spin version:
+
+```sh
+spin verman set custom
+```
+
 ## Update a version of Spin in the `~/.spin_verman` directory
 
 ```sh

@@ -71,6 +71,27 @@ var setLatestStableCmd = &cobra.Command{
 	},
 }
 
+var setCustomCmd = &cobra.Command{
+	Use:   "custom",
+	Short: "Sets Spin to a custom binary.",
+	Long:  "Sets Spin to a custom binary. If a pointer to the custom binary was not previously created, or you wish to update the existing custom binary, run this command with the \"--file\" flag.",
+	Args:  cobra.MaximumNArgs(0),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		binaryPath, err := cmd.Flags().GetString("file")
+		if err != nil {
+			return err
+		}
+
+		if err := setCustom(binaryPath); err != nil {
+			return err
+		}
+
+		fmt.Println("Spin has been updated to version custom")
+
+		return nil
+	},
+}
+
 // updateSpinBinary creates a symlink pointing to a binary file containing the specified version of Spin
 func updateSpinBinary(directory, version string) error {
 	if err := os.MkdirAll(path.Join(directory, "current_version"), 0755); err != nil {
@@ -88,6 +109,11 @@ func updateSpinBinary(directory, version string) error {
 
 	if err := os.Symlink(path.Join(directory, version, "spin"), path.Join(symLinkDir, "spin")); err != nil {
 		return err
+	}
+
+	// If the user has defined a custom version, the checks below don't apply
+	if version == "custom" {
+		return nil
 	}
 
 	testSpinVersionCmd := exec.Command("spin", "--version")
@@ -115,6 +141,78 @@ func updateSpinBinary(directory, version string) error {
 
 	if !strings.Contains(string(currentSpinVersionBytes), version) {
 		return fmt.Errorf("it looks like the version of the current Spin executable does not match what was requested, so please check to make sure the path %q is prepended to your path", symLinkDir)
+	}
+
+	return nil
+}
+
+// setCustom creates or updates the symlink pointing to a binary file containing a custom version of Spin found locally.
+// If the user has already created the symlink, this will switch Spin to the existing symlink.
+func setCustom(pathToSpinBinary string) error {
+	versionDir, err := getVersionDir()
+	if err != nil {
+		return err
+	}
+
+	if pathToSpinBinary == "" {
+		binaryExists, err := exists(path.Join(versionDir, "custom", "spin"))
+		if err != nil {
+			return err
+		}
+
+		if !binaryExists {
+			return fmt.Errorf("nothing points to a custom Spin binary, so please run \"spin verman set custom --file path/to/spin/binary\" to proceed")
+		}
+
+		fmt.Println("Spin version custom found locally.")
+
+	} else {
+		if !strings.HasSuffix(pathToSpinBinary, "spin") {
+			return fmt.Errorf("the path specified is not to a file named \"spin\": %q", pathToSpinBinary)
+		}
+
+		// Make sure the Spin binary is not a directory
+		dirData, err := os.Stat(pathToSpinBinary)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return fmt.Errorf("the file %q doesn't exist", pathToSpinBinary)
+			}
+			return err
+		}
+
+		// Check if the provided path is a file
+		if dirData.IsDir() {
+			return fmt.Errorf("the path %q exists, but is a directory, not a file", pathToSpinBinary)
+		}
+
+		// Creating a "custom" directory so that it shows up under the "list" command
+		symLinkPath := path.Join(versionDir, "custom", "spin")
+		symLinkPathExists, err := exists(symLinkPath)
+		if err != nil {
+			return err
+		}
+
+		if !symLinkPathExists {
+			if err = os.MkdirAll(symLinkPath, 0755); err != nil {
+				return err
+			}
+		}
+
+		// Removing old SymLink, returning an error only if the error is not a 'file does not exist' error
+		if err := os.Remove(path.Join(symLinkPath)); err != nil {
+			if !os.IsNotExist(err) {
+				return fmt.Errorf("failed to remove old symlink: %v", err)
+			}
+		}
+
+		if err := os.Symlink(path.Join(pathToSpinBinary), path.Join(symLinkPath)); err != nil {
+			return err
+		}
+
+	}
+
+	if err := updateSpinBinary(versionDir, "custom"); err != nil {
+		return err
 	}
 
 	return nil
