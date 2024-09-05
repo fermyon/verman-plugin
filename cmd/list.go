@@ -48,7 +48,7 @@ func list() (string, error) {
 	var output []string
 
 	for _, file := range files {
-		if strings.HasPrefix(file.Name(), "v") || file.Name() == "canary" {
+		if file.Name() != "current_version" {
 			output = append(output, file.Name())
 		}
 	}

@@ -20,6 +20,8 @@ func Execute() {
 func init() {
 	// Set
 	setCmd.AddCommand(setLatestStableCmd)
+	setCustomCmd.PersistentFlags().StringP("file", "f", "", "Specifies the path to the desired Spin binary")
+	setCmd.AddCommand(setCustomCmd)
 	rootCmd.AddCommand(setCmd)
 	// Get
 	getCmd.AddCommand(getLatestStableCmd)

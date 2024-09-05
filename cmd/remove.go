@@ -23,7 +23,7 @@ var removeCmd = &cobra.Command{
 
 		version := args[0]
 
-		if !strings.HasPrefix(version, "v") && version != "canary" {
+		if !strings.HasPrefix(version, "v") && version != "canary" && version != "custom" {
 			version = "v" + version
 		}
 
