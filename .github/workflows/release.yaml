@@ -21,8 +21,8 @@ jobs:
           # The architectures and operating systems accepted by Golang and the Pluginify tool are different for macos + arm64
           - { goArch: "amd64", goOs: "linux", pluginifyArch: "amd64", pluginifyOs: linux}
           - { goArch: "arm64", goOs: "linux", pluginifyArch: "aarch64", pluginifyOs: linux}
-          - { goArch: "arm64", goOs: "darwin", pluginifyArch: "amd64", pluginifyOs: macos}
-          - { goArch: "amd64", goOs: "darwin", pluginifyArch: "aarch64", pluginifyOs: macos}
+          - { goArch: "arm64", goOs: "darwin", pluginifyArch: "aarch64", pluginifyOs: macos}
+          - { goArch: "amd64", goOs: "darwin", pluginifyArch: "amd64", pluginifyOs: macos}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
