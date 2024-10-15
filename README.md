@@ -42,6 +42,13 @@ export PATH="$HOME/.spin_verman/versions/current_version:$PATH"
 
 Once the path is prepended, you can try the below commands:
 
+## List available versions of Spin
+
+```sh
+# list all available versions of spin
+spin verman list-remote
+```
+
 ## Download a specific version of Spin
 
 Specify the desired version:
