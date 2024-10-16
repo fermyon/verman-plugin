@@ -26,6 +26,8 @@ func init() {
 	rootCmd.AddCommand(getCmd)
 	// List
 	rootCmd.AddCommand(listCmd)
+	// List Remote
+	rootCmd.AddCommand(listRemoteCmd)
 	// Remove
 	removeCmd.AddCommand(removeAllCmd)
 	removeCmd.AddCommand(removeCurrentCmd)
