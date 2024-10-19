@@ -79,6 +79,23 @@ Set the latest version:
 spin verman set latest
 ```
 
+## Using `.spinrc` to Download and Set the desired Spin version
+
+You can specify the desired version of Spin in a `.spinrc` file. The `verman` plugin is able to download and set the current version from a `.spinrc` file:
+
+```bash
+# Specify desired version in a .spinrc file
+echo "2.7.0" > .spinrc
+
+# Download the spin version specified in .spinrc
+spin verman get
+
+# Set the version of spin specified in .spinrc
+spin verman set
+```
+
+*Note: Arguments are provided to either `spin verman get` or `spin verman set` have higher priority compared to `.spinrc`.*
+
 ## Update a version of Spin in the `~/.spin_verman` directory
 
 ```sh
