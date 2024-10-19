@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/fermyon/verman-plugin/internal/verman"
 	"github.com/spf13/cobra"
 )
 
@@ -22,8 +23,9 @@ var getCmd = &cobra.Command{
 	Short: "Downloads the binary for the requested version if not found locally.",
 	Long:  "Downloads the binary for the requested version if not found locally. Multiple versions can be downloaded at once: \"spin verman get 2.1.0 canary\".",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return fmt.Errorf("you must indicate the version of Spin you wish to set")
+		versions, err := verman.GetDesiredVersionsForGet(args)
+		if err != nil {
+			return err
 		}
 
 		versionDir, err := getVersionDir()
@@ -31,7 +33,7 @@ var getCmd = &cobra.Command{
 			return err
 		}
 
-		for _, version := range args {
+		for _, version := range versions {
 			if !strings.HasPrefix(version, "v") && version != "canary" {
 				version = "v" + version
 			}
