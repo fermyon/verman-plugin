@@ -7,6 +7,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/fermyon/verman-plugin/internal/verman"
 	"github.com/spf13/cobra"
 )
 
@@ -15,11 +16,10 @@ var setCmd = &cobra.Command{
 	Short: "Sets Spin to the requested version.",
 	Long:  "Sets Spin to the requested version, and will download the binary for the requested version if not found locally.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			return fmt.Errorf("you must indicate the version of Spin you wish to set")
+		version, err := verman.GetDesiredVersionForSet(args)
+		if err != nil {
+			return err
 		}
-
-		version := args[0]
 
 		if !strings.HasPrefix(version, "v") && version != "canary" {
 			version = "v" + version

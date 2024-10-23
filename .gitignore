@@ -1,3 +1,4 @@
 verman
+!internal/verman
 *.json
 *.tar.gz
