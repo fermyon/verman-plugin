@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	rcFileName = ".spinrc"
+	spinVersionFileName = ".spin-version"
 )
 
 func GetDesiredVersionForSet(args []string) (string, error) {
@@ -15,7 +15,7 @@ func GetDesiredVersionForSet(args []string) (string, error) {
 	if len(args) > 0 {
 		return args[0], nil
 	}
-	rcVersion := getVersionFromRcFile()
+	rcVersion := getVersionFromSpinVersionFile()
 
 	// if rc version is empty, return an error
 	if len(rcVersion) == 0 {
@@ -29,7 +29,7 @@ func GetDesiredVersionsForGet(args []string) ([]string, error) {
 	if len(args) > 0 {
 		return args, nil
 	}
-	rcVersion := getVersionFromRcFile()
+	rcVersion := getVersionFromSpinVersionFile()
 
 	// if rc version is empty, return an error
 	if len(rcVersion) == 0 {
@@ -38,13 +38,13 @@ func GetDesiredVersionsForGet(args []string) ([]string, error) {
 	return []string{rcVersion}, nil
 }
 
-func getVersionFromRcFile() string {
-	_, err := os.Stat(rcFileName)
+func getVersionFromSpinVersionFile() string {
+	_, err := os.Stat(spinVersionFileName)
 	if os.IsNotExist(err) {
 		return ""
 	}
 
-	content, err := os.ReadFile(rcFileName)
+	content, err := os.ReadFile(spinVersionFileName)
 	if err != nil {
 		return ""
 	}

@@ -7,11 +7,11 @@ import (
 
 func TestGetDesiredVersionForSet(t *testing.T) {
 	tests := []struct {
-		name          string
-		args          []string
-		rcFileContent string
-		expected      string
-		expectError   bool
+		name                   string
+		args                   []string
+		spinVersionFileContent string
+		expected               string
+		expectError            bool
 	}{
 		{
 			name:        "Explicit version provided",
@@ -20,21 +20,21 @@ func TestGetDesiredVersionForSet(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:          "No args, version from rc file",
-			args:          []string{},
-			rcFileContent: "2.3.4",
-			expected:      "2.3.4",
-			expectError:   false,
+			name:                   "No args, version from .spin-version file",
+			args:                   []string{},
+			spinVersionFileContent: "2.3.4",
+			expected:               "2.3.4",
+			expectError:            false,
 		},
 		{
-			name:          "No args, empty rc file",
-			args:          []string{},
-			rcFileContent: "",
-			expected:      "",
-			expectError:   true,
+			name:                   "No args, empty .spin-version file",
+			args:                   []string{},
+			spinVersionFileContent: "",
+			expected:               "",
+			expectError:            true,
 		},
 		{
-			name:        "No args, rc file does not exist",
+			name:        "No args, .spin-version file does not exist",
 			args:        []string{},
 			expected:    "",
 			expectError: true,
@@ -43,14 +43,14 @@ func TestGetDesiredVersionForSet(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.rcFileContent != "" {
-				err := os.WriteFile(rcFileName, []byte(tt.rcFileContent), 0644)
+			if tt.spinVersionFileContent != "" {
+				err := os.WriteFile(spinVersionFileName, []byte(tt.spinVersionFileContent), 0644)
 				if err != nil {
-					t.Fatalf("failed to write rc file: %v", err)
+					t.Fatalf("failed to write .spin-version file: %v", err)
 				}
-				defer os.Remove(rcFileName)
+				defer os.Remove(spinVersionFileName)
 			} else {
-				os.Remove(rcFileName)
+				os.Remove(spinVersionFileName)
 			}
 
 			version, err := GetDesiredVersionForSet(tt.args)
@@ -66,11 +66,11 @@ func TestGetDesiredVersionForSet(t *testing.T) {
 
 func TestGetDesiredVersionsForGet(t *testing.T) {
 	tests := []struct {
-		name          string
-		args          []string
-		rcFileContent string
-		expected      []string
-		expectError   bool
+		name                   string
+		args                   []string
+		spinVersionFileContent string
+		expected               []string
+		expectError            bool
 	}{
 		{
 			name:        "Explicit versions provided",
@@ -79,21 +79,21 @@ func TestGetDesiredVersionsForGet(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:          "No args, version from rc file",
-			args:          []string{},
-			rcFileContent: "2.3.4",
-			expected:      []string{"2.3.4"},
-			expectError:   false,
+			name:                   "No args, version from .spin-version file",
+			args:                   []string{},
+			spinVersionFileContent: "2.3.4",
+			expected:               []string{"2.3.4"},
+			expectError:            false,
 		},
 		{
-			name:          "No args, empty rc file",
-			args:          []string{},
-			rcFileContent: "",
-			expected:      nil,
-			expectError:   true,
+			name:                   "No args, empty .spin-version file",
+			args:                   []string{},
+			spinVersionFileContent: "",
+			expected:               nil,
+			expectError:            true,
 		},
 		{
-			name:        "No args, rc file does not exist",
+			name:        "No args, .spin-version file does not exist",
 			args:        []string{},
 			expected:    nil,
 			expectError: true,
@@ -102,14 +102,14 @@ func TestGetDesiredVersionsForGet(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.rcFileContent != "" {
-				err := os.WriteFile(rcFileName, []byte(tt.rcFileContent), 0644)
+			if tt.spinVersionFileContent != "" {
+				err := os.WriteFile(spinVersionFileName, []byte(tt.spinVersionFileContent), 0644)
 				if err != nil {
-					t.Fatalf("failed to write rc file: %v", err)
+					t.Fatalf("failed to write .spin-version file: %v", err)
 				}
-				defer os.Remove(rcFileName)
+				defer os.Remove(spinVersionFileName)
 			} else {
-				os.Remove(rcFileName)
+				os.Remove(spinVersionFileName)
 			}
 
 			versions, err := GetDesiredVersionsForGet(tt.args)
