@@ -6,7 +6,7 @@ This is a plugin that makes it easy to switch between different versions of Spin
 
 ## Install the latest version of the plugin
 
-The latest stable release of the OTel plugin can be installed like so:
+The latest stable release of the verman plugin can be installed like so:
 
 ```sh
 spin plugins update
@@ -15,7 +15,7 @@ spin plugin install verman
 
 ## Install the canary version of the plugin
 
-The canary release of the command trigger plugin represents the most recent commits on `main` and may not be stable, with some features still in progress.
+The canary release of the verman plugin represents the most recent commits on `main` and may not be stable, with some features still in progress.
 
 ```sh
 spin plugins install --url https://github.com/fermyon/verman-plugin/releases/download/canary/verman.json
