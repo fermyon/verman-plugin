@@ -11,7 +11,6 @@ import (
 	"os"
 	"path"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -156,10 +155,6 @@ func downloadSpin(versionDir, version string) error {
 		return fmt.Errorf("%q is not an OS that this Spin plugin supports", runtime.GOOS)
 	}
 
-	if !isSemver(version) && version != "canary" {
-		return fmt.Errorf("the requested version %q is not proper semver (i.e. v0.0.0 or 0.0.0)", version)
-	}
-
 	fileName := fmt.Sprintf("spin-%s-%s-%s.tar.gz", version, spinOS, spinArch)
 
 	dirExists, err := exists(versionDir)
@@ -201,7 +196,7 @@ func downloadSpin(versionDir, version string) error {
 		defer resp.Body.Close()
 
 		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("the version number provided is invalid: %s", version)
+			return fmt.Errorf("the version number provided was not found: %s", version)
 		}
 
 		out, err := os.Create(path.Join(versionDir, fileName))
@@ -288,17 +283,3 @@ func unpackSpin(directory, tarGzFileName, version string) error {
 	return nil
 }
 
-// isSemver makes sure the version passed is proper semver
-func isSemver(version string) bool {
-	isInt := func(val string) bool {
-		_, err := strconv.ParseInt(val, 10, 64)
-		return err == nil
-	}
-
-	versionArray := strings.Split(version, ".")
-
-	return (len(versionArray) == 3) &&
-		isInt(strings.Split(versionArray[0], "v")[1]) && // This checks whether the value next to the "v" is an integer
-		isInt(versionArray[1]) &&
-		isInt(versionArray[2])
-}
