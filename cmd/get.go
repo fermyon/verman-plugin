@@ -11,11 +11,11 @@ import (
 	"os"
 	"path"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/fermyon/verman-plugin/internal/verman"
 	"github.com/spf13/cobra"
+	"golang.org/x/mod/semver"
 )
 
 var getCmd = &cobra.Command{
@@ -292,15 +292,5 @@ func unpackSpin(directory, tarGzFileName, version string) error {
 
 // isSemver makes sure the version passed is proper semver
 func isSemver(version string) bool {
-	isInt := func(val string) bool {
-		_, err := strconv.ParseInt(val, 10, 64)
-		return err == nil
-	}
-
-	versionArray := strings.Split(version, ".")
-
-	return (len(versionArray) == 3) &&
-		isInt(strings.Split(versionArray[0], "v")[1]) && // This checks whether the value next to the "v" is an integer
-		isInt(versionArray[1]) &&
-		isInt(versionArray[2])
+	return semver.IsValid(version)
 }
