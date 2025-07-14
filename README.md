@@ -64,6 +64,14 @@ Get the latest stable version:
 spin verman get latest
 ```
 
+## Create an alias for a local build of Spin
+
+Specify the alias name and path to Spin binary:
+
+```sh
+spin verman alias myalias /path/to/spin
+```
+
 ## Set a different version of Spin
 
 Set a specific version:
@@ -77,6 +85,12 @@ Set the latest version:
 
 ```sh
 spin verman set latest
+```
+
+Set to an alias for a local build:
+
+```sh
+spin verman set myalias
 ```
 
 ## Using `.spin-version` to Download and Set the desired Spin version
@@ -116,6 +130,12 @@ Remove a single version:
 ```sh
 # Adding the v prefix to the version is optional
 spin verman remove v2.5.0
+```
+
+Remove an alias for a local build:
+
+```sh
+spin verman rm myalias
 ```
 
 Remove all versions:

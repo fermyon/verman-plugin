@@ -11,7 +11,6 @@ import (
 	"os"
 	"path"
 	"runtime"
-	"strings"
 
 	"github.com/fermyon/verman-plugin/internal/verman"
 	"github.com/spf13/cobra"
@@ -34,10 +33,6 @@ var getCmd = &cobra.Command{
 		}
 
 		for _, version := range versions {
-			if !strings.HasPrefix(version, "v") && version != "canary" {
-				version = "v" + version
-			}
-
 			if err := downloadSpin(versionDir, version); err != nil {
 				return err
 			}
@@ -158,12 +153,6 @@ func downloadSpin(versionDir, version string) error {
 		return fmt.Errorf("%q is not an OS that this Spin plugin supports", runtime.GOOS)
 	}
 
-	if !isSemver(version) && version != "canary" {
-		return fmt.Errorf("the requested version %q is not proper semver (i.e. v0.0.0 or 0.0.0)", version)
-	}
-
-	fileName := fmt.Sprintf("spin-%s-%s-%s.tar.gz", version, spinOS, spinArch)
-
 	dirExists, err := exists(versionDir)
 	if err != nil {
 		return err
@@ -192,9 +181,18 @@ func downloadSpin(versionDir, version string) error {
 		}
 	}
 
-	// If the tar.gz file doesn't exist, pull from GitHub
 	if !versionFolderExists {
-		fmt.Printf("Spin version %s not found locally. Retrieving from source...\n", version)
+		fmt.Printf("Spin version %s not found locally. Attempting to retrieve from source...\n", version)
+
+		if version != "canary" && !semver.IsValid(version) {
+			if !semver.IsValid("v" + version) {
+				return fmt.Errorf("requested version %q is not valid Semantic Versioning, and cannot be retrieved", version)
+			} else {
+				version = "v" + version
+			}
+		}
+
+		fileName := fmt.Sprintf("spin-%s-%s-%s.tar.gz", version, spinOS, spinArch)
 
 		resp, err := http.Get("https://github.com/fermyon/spin/releases/download/" + version + "/" + fileName)
 		if err != nil {
@@ -288,9 +286,4 @@ func unpackSpin(directory, tarGzFileName, version string) error {
 	}
 
 	return nil
-}
-
-// isSemver makes sure the version passed is proper semver
-func isSemver(version string) bool {
-	return semver.IsValid(version)
 }
