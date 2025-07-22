@@ -11,7 +11,7 @@ import (
 var listCmd = &cobra.Command{
 	Use:     "list",
 	Aliases: []string{"ls"},
-	Short:   "Lists all Spin versions downloaded locally.",
+	Short:   "Lists available Spin versions and aliases.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		output, err := list()
 		if err != nil {
@@ -48,7 +48,7 @@ func list() (string, error) {
 	var output []string
 
 	for _, file := range files {
-		if strings.HasPrefix(file.Name(), "v") || file.Name() == "canary" {
+		if file.Name() != "current_version" {
 			output = append(output, file.Name())
 		}
 	}

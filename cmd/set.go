@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 
@@ -14,15 +13,11 @@ import (
 var setCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Sets Spin to the requested version.",
-	Long:  "Sets Spin to the requested version, and will download the binary for the requested version if not found locally.",
+	Long:  "Sets Spin to the requested version. If the requested version is not found locally and exists in the remote repository, it will be downloaded.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		version, err := verman.GetDesiredVersionForSet(args)
 		if err != nil {
 			return err
-		}
-
-		if !strings.HasPrefix(version, "v") && version != "canary" {
-			version = "v" + version
 		}
 
 		versionDir, err := getVersionDir()
@@ -30,11 +25,18 @@ var setCmd = &cobra.Command{
 			return err
 		}
 
+		symlinkDir := path.Join(versionDir, "current_version")
+		binaryDir := path.Join(versionDir, version)
+
+		if err := checkPathVar(symlinkDir); err != nil {
+			return err
+		}
+
 		if err := downloadSpin(versionDir, version); err != nil {
 			return err
 		}
 
-		if err = updateSpinBinary(versionDir, version); err != nil {
+		if err = updateSpinBinary(binaryDir, symlinkDir); err != nil {
 			return err
 		}
 
@@ -58,11 +60,18 @@ var setLatestStableCmd = &cobra.Command{
 			return err
 		}
 
+		symlinkDir := path.Join(versionDir, "current_version")
+		binaryDir := path.Join(versionDir, version)
+
+		if err := checkPathVar(symlinkDir); err != nil {
+			return err
+		}
+
 		if err := downloadSpin(versionDir, version); err != nil {
 			return err
 		}
 
-		if err := updateSpinBinary(versionDir, version); err != nil {
+		if err := updateSpinBinary(binaryDir, symlinkDir); err != nil {
 			return err
 		}
 
@@ -72,49 +81,37 @@ var setLatestStableCmd = &cobra.Command{
 }
 
 // updateSpinBinary creates a symlink pointing to a binary file containing the specified version of Spin
-func updateSpinBinary(directory, version string) error {
-	if err := os.MkdirAll(path.Join(directory, "current_version"), 0755); err != nil {
+func updateSpinBinary(binaryDir, symlinkDir string) error {
+	if err := os.MkdirAll(symlinkDir, 0755); err != nil {
 		return err
 	}
 
-	symLinkDir := path.Join(directory, "current_version")
-
-	// Removing old SymLink, returning an error only if the error is not a 'file does not exist' error
-	if err := os.Remove(path.Join(symLinkDir, "spin")); err != nil {
+	// If there is already an existing symlink, this deletes the symlink (or deletes nothing if the symlink doesn't exist) so a new one can be created
+	if err := os.Remove(path.Join(symlinkDir, "spin")); err != nil {
 		if !os.IsNotExist(err) {
 			return fmt.Errorf("failed to remove old symlink: %v", err)
 		}
 	}
 
-	if err := os.Symlink(path.Join(directory, version, "spin"), path.Join(symLinkDir, "spin")); err != nil {
+	if err := os.Symlink(path.Join(binaryDir, "spin"), path.Join(symlinkDir, "spin")); err != nil {
 		return err
 	}
 
-	testSpinVersionCmd := exec.Command("spin", "--version")
-	currentSpinVersionBytes, err := testSpinVersionCmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("error getting the current version of Spin: %v\n%s", err, string(currentSpinVersionBytes))
-	}
+	return nil
+}
 
-	if version == "canary" {
-		// Checking the version of the canary
-		canaryFile := path.Join(directory, "canary", "spin")
-		cmd := exec.Command(canaryFile, "--version")
-		canaryVersionBytes, err := cmd.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("error getting the current canary version: %v\n%s", err, string(canaryVersionBytes))
+func checkPathVar(dirPath string) error {
+	// Check to make sure the currentVersionPath is in the $PATH variable
+	path := os.Getenv("PATH")
+	pathSeparator := string(os.PathListSeparator)
+	pathIsInPATH := false
+	for _, p := range strings.Split(path, pathSeparator) {
+		if p == dirPath {
+			pathIsInPATH = true
 		}
-
-		// Retrieves the version number from the "spin --version" command
-		version = strings.Split(string(canaryVersionBytes), " ")[1]
-
-	} else {
-		// Remove the "v" prefix from the version
-		version = version[1:]
 	}
-
-	if !strings.Contains(string(currentSpinVersionBytes), version) {
-		return fmt.Errorf("it looks like the version of the current Spin executable does not match what was requested, so please check to make sure the path %q is prepended to your path", symLinkDir)
+	if !pathIsInPATH {
+		return fmt.Errorf("unable to find %q in $PATH", dirPath)
 	}
 
 	return nil

@@ -13,8 +13,8 @@ import (
 var removeCmd = &cobra.Command{
 	Use:     "remove",
 	Aliases: []string{"rm"},
-	Short:   "Removes the specified Spin version from the local directory.",
-	Long:    "Removes the specified Spin version from the local directory. Only removes the relevant Spin binary located in the \"~/.spin_verman/versions\" directory.",
+	Short:   "Removes the specified Spin version (or symlink if it's an alias) from the local directory.",
+	Long:    "Removes the specified Spin version (or symlink if it's an alias) from the local directory. Only removes the relevant Spin binary located in the \"~/.spin_verman/versions\" directory.",
 	Args:    cobra.MaximumNArgs(1), // This intentionally only removes one at a time
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
@@ -23,15 +23,9 @@ var removeCmd = &cobra.Command{
 
 		version := args[0]
 
-		if !strings.HasPrefix(version, "v") && version != "canary" {
-			version = "v" + version
-		}
-
 		if err := remove(version); err != nil {
 			return err
 		}
-
-		fmt.Printf("Spin version %q was successfully deleted", version)
 
 		return nil
 	},
@@ -52,8 +46,8 @@ var removeCurrentCmd = &cobra.Command{
 
 var removeAllCmd = &cobra.Command{
 	Use:   "all",
-	Short: "Removes all Spin versions from the local directory.",
-	Long:  "Removes all Spin versions from the local directory. Only removes the Spin binaries located in the \"~/.spin_verman/versions\" directory.",
+	Short: "Removes all Spin versions (or symlinks if there are aliases) from the local directory.",
+	Long:  "Removes all Spin versions (or symlinks if there are aliases) from the local directory. Only removes the Spin binaries located in the \"~/.spin_verman/versions\" directory.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Print("Are you sure you want to delete all Spin versions?\nType \"y\", \"yes\", or any other key to cancel: ")
 		input := bufio.NewScanner(os.Stdin)
@@ -80,6 +74,17 @@ func remove(version string) error {
 	versionDir, err := getVersionDir()
 	if err != nil {
 		return err
+	}
+
+	// Ensures that versions passed without a `v` prefix are deleted
+	versionPath := path.Join(versionDir, version)
+	if _, err := os.Stat(versionPath); os.IsNotExist(err) {
+		versionPath = path.Join(versionDir, "v"+version)
+		if _, err := os.Stat(versionPath); os.IsNotExist(err) {
+			fmt.Println("Warning: file does not exist; nothing to remove")
+			return nil
+		}
+		version = "v" + version
 	}
 
 	filePath := path.Join(versionDir, version)

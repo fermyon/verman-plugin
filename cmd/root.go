@@ -21,6 +21,8 @@ func init() {
 	// Set
 	setCmd.AddCommand(setLatestStableCmd)
 	rootCmd.AddCommand(setCmd)
+	//Alias
+	rootCmd.AddCommand(aliasCmd)
 	// Get
 	getCmd.AddCommand(getLatestStableCmd)
 	rootCmd.AddCommand(getCmd)
