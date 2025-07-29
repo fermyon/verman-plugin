@@ -98,8 +98,6 @@ func getVersionDir() (string, error) {
 		if err = os.MkdirAll(versionDir, 0755); err != nil {
 			return "", err
 		}
-
-		return "", nil
 	}
 
 	return versionDir, nil
