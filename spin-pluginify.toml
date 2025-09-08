@@ -1,5 +1,5 @@
 name = "verman"
-version = "0.1.1"
+version = "0.1.2"
 # This version number is low because we need the ability to switch between different versions of Spin
 spin_compatibility = ">=1.0"
 license = "Apache-2.0"
